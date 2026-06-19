@@ -6,5 +6,15 @@
     "api/*.js": {
       "runtime": "nodejs20.x"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/markets",
+      "destination": "/api/markets.js"
+    },
+    {
+      "source": "/api/ping",
+      "destination": "/api/ping.js"
+    }
+  ]
 }
