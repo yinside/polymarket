@@ -267,16 +267,12 @@ function readThreshold(url) {
 export default async function handler(request, response) {
   try {
     const payload = await getMarketsResponse(readThreshold(request.url))
-    response.statusCode = 200
-    response.setHeader('Content-Type', 'application/json; charset=utf-8')
-    response.end(JSON.stringify(payload))
+    response.status(200).json(payload)
   } catch (error) {
-    response.statusCode = 500
-    response.setHeader('Content-Type', 'application/json; charset=utf-8')
-    response.end(
-      JSON.stringify({
+    response
+      .status(500)
+      .json({
         message: error instanceof Error ? error.message : 'Unknown server error',
-      }),
-    )
+      })
   }
 }
