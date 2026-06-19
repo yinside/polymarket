@@ -3,6 +3,7 @@ import type { CityMarket, MarketsResponse } from '../types'
 const GAMMA_EVENTS_URL =
   'https://gamma-api.polymarket.com/events?tag_slug=highest-temperature&active=true&closed=false&archived=false&limit=200'
 const DEFAULT_THRESHOLD = 30
+const BLOCKED_CITIES = new Set(['Jinan', 'Zhengzhou'])
 
 type RawMarket = {
   question: string
@@ -148,22 +149,15 @@ function extractYesProbability(market: RawMarket) {
 }
 
 function isHighestTemperatureEvent(event: RawEvent) {
+  const city = extractCity(event.title)
+
   return (
     event.active &&
     !event.closed &&
     !event.archived &&
-    event.title.toLowerCase().startsWith('highest temperature in ')
+    event.title.toLowerCase().startsWith('highest temperature in ') &&
+    !BLOCKED_CITIES.has(city)
   )
-}
-
-function getLatestEndDate(events: RawEvent[]) {
-  return events.reduce((latest, event) => {
-    if (!latest) {
-      return event.endDate
-    }
-
-    return event.endDate > latest ? event.endDate : latest
-  }, '')
 }
 
 function toCityMarket(event: RawEvent, threshold: number): CityMarket | null {
@@ -211,11 +205,9 @@ export async function fetchMarkets(threshold = DEFAULT_THRESHOLD): Promise<Marke
 
   const rawEvents = (await response.json()) as RawEvent[]
   const events = rawEvents.filter(isHighestTemperatureEvent)
-  const latestEndDate = getLatestEndDate(events)
-  const latestEvents = latestEndDate ? events.filter((event) => event.endDate === latestEndDate) : events
   const safeThreshold = clampThreshold(threshold)
 
-  const cities = latestEvents
+  const cities = events
     .map((event) => toCityMarket(event, safeThreshold))
     .filter((city): city is CityMarket => Boolean(city))
     .sort((left, right) => left.topOptionProbability - right.topOptionProbability)
@@ -224,7 +216,7 @@ export async function fetchMarkets(threshold = DEFAULT_THRESHOLD): Promise<Marke
     cities,
     filteredCities: cities.filter((city) => city.trigger),
     generatedAt: new Date().toISOString(),
-    sourceCount: latestEvents.length,
+    sourceCount: events.length,
     threshold: safeThreshold,
   }
 }
