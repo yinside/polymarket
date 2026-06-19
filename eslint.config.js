@@ -25,4 +25,13 @@ export default defineConfig([
       ...reactRefresh.configs.vite.rules,
     },
   },
+  {
+    files: ['api/**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
 ])

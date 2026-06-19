@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import type { CityMarket, MarketsResponse } from './types'
+import { fetchMarkets } from './lib/polymarket'
 import './App.css'
 
 const REFRESH_INTERVAL_MS = 60_000
-const REQUEST_RETRY_DELAY_MS = 1200
 
 function formatVolume(value: number) {
   return new Intl.NumberFormat('en-US', {
@@ -22,30 +22,6 @@ function getSignalTone(city: CityMarket) {
   }
 
   return 'watch'
-}
-
-async function fetchMarketsWithRetry() {
-  const response = await fetch('/api/markets')
-
-  if (response.ok) {
-    return response
-  }
-
-  if (response.status !== 404) {
-    throw new Error(`请求失败: ${response.status}`)
-  }
-
-  await new Promise((resolve) => {
-    window.setTimeout(resolve, REQUEST_RETRY_DELAY_MS)
-  })
-
-  const retryResponse = await fetch('/api/markets')
-
-  if (!retryResponse.ok) {
-    throw new Error(`请求失败: ${retryResponse.status}`)
-  }
-
-  return retryResponse
 }
 
 function App() {
@@ -68,8 +44,7 @@ function App() {
       }
 
       try {
-        const response = await fetchMarketsWithRetry()
-        const payload = (await response.json()) as MarketsResponse
+        const payload = await fetchMarkets()
 
         if (!cancelled) {
           setData(payload)
