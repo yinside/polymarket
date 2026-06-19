@@ -18,7 +18,7 @@ function polymarketApi(): Plugin {
 
     try {
       const url = new URL(request.url, 'http://localhost')
-      const threshold = Number(url.searchParams.get('threshold') ?? 70)
+      const threshold = Number(url.searchParams.get('threshold') ?? 30)
       const payload = await getMarketsResponse(threshold)
 
       response.statusCode = 200
