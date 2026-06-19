@@ -1,0 +1,61 @@
+:root {
+  --bg:
+    radial-gradient(circle at top, rgba(255, 158, 84, 0.18), transparent 28%),
+    linear-gradient(180deg, #0a111d 0%, #071019 52%, #05090f 100%);
+  --panel: rgba(9, 16, 29, 0.72);
+  --panel-strong: rgba(10, 18, 32, 0.88);
+  --text: #fff3e4;
+  --muted: #f2b685;
+  --muted-soft: #c6b59d;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent: #ffd166;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  --display: 'Avenir Next', 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  --body: 'IBM Plex Sans', 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  color: var(--text);
+  font-family: var(--body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #05090f;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 95%);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
