@@ -43,10 +43,13 @@ const CITY_NAME_MAP: Record<string, string> = {
   Austin: '奥斯汀',
   Beijing: '北京',
   Busan: '釜山',
+  'Buenos Aires': '布宜诺斯艾利斯',
   'Cape Town': '开普敦',
   Chengdu: '成都',
+  Chicago: '芝加哥',
   Chongqing: '重庆',
   Dallas: '达拉斯',
+  Denver: '丹佛',
   Guangzhou: '广州',
   Helsinki: '赫尔辛基',
   'Hong Kong': '香港',
@@ -80,6 +83,7 @@ const CITY_NAME_MAP: Record<string, string> = {
   Taipei: '台北',
   'Tel Aviv': '特拉维夫',
   Tokyo: '东京',
+  Toronto: '多伦多',
   Warsaw: '华沙',
   Wellington: '惠灵顿',
   Wuhan: '武汉',
@@ -130,9 +134,16 @@ function extractMarketDateLabel(title: string, fallbackDate: string) {
   return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
+function normalizeTemperatureLabel(label: string) {
+  return label
+    .replace(/^between\s+/i, '')
+    .replace(/\s+or\s+(below|above)$/i, '')
+    .trim()
+}
+
 function extractLabel(question: string) {
   const match = question.match(/ be (.+) on /i)
-  return match?.[1] ?? question
+  return normalizeTemperatureLabel(match?.[1] ?? question)
 }
 
 function extractYesProbability(market: RawMarket) {
