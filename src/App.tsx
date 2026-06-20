@@ -86,10 +86,10 @@ function App() {
       <section className="opportunity-panel">
         <div className="section-head">
           <div>
-            <p className="panel-label">机会城市</p>
-            <h2>最高温度概率低于 30%</h2>
+            <p className="panel-label">机会城市 + 最新检测</p>
+            <h2>按最高温度概率从低到高浏览</h2>
           </div>
-          <p className="section-note">这些城市连最可能的那个温度档都不够高，说明市场还比较分散。</p>
+          <p className="section-note">低于 30% 的城市会优先高亮，方便你在同一屏里直接扫盘。</p>
         </div>
 
         <div className="status-bar">
@@ -107,62 +107,19 @@ function App() {
           </button>
         </div>
 
-        <div className="cards-grid">
+        <div className="mini-cards-grid merged-grid">
           {loading ? (
             <div className="empty-state">正在计算高温分布...</div>
-          ) : visibleOpportunityCities.length ? (
-            visibleOpportunityCities.map((city) => (
-              <article key={city.slug} className={`city-card ${getSignalTone(city)}`}>
-                <div className="city-card-head">
-                  <div>
-                    <p>{city.cityZh}</p>
-                    <strong>{city.topOptionProbability}%</strong>
-                  </div>
-                  <a href={city.marketUrl} target="_blank" rel="noreferrer">
-                    查看市场
-                  </a>
-                </div>
-
-                <div className="chip-row">
-                  <span className="probability-chip">
-                    最高档 <b>{city.topOption.label}</b>
-                  </span>
-                  <span className="probability-chip">
-                    概率 <b>{city.topOption.probability}%</b>
-                  </span>
-                </div>
-
-                <div className="card-meta">
-                  <span>市场日期 {city.marketDateLabel}</span>
-                  <span>24h Vol {formatVolume(city.volume24hr)}</span>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="empty-state">当前没有城市的最高温度概率低于 30%。</div>
-          )}
-        </div>
-      </section>
-
-      <section className="table-panel">
-        <div className="section-head">
-          <div>
-            <p className="panel-label">最新检测到的城市</p>
-            <h2>按小卡片快速浏览</h2>
-          </div>
-          <p className="section-note">按“是否命中 + 最高温度概率从低到高”排列，方便快速扫盘。</p>
-        </div>
-
-        <div className="mini-cards-grid">
-          {loading ? (
-            <div className="empty-state">载入中...</div>
-          ) : (
-            data?.cities.map((city) => (
-              <article key={city.slug} className={`mini-city-card ${city.trigger ? 'active' : ''}`}>
+          ) : data?.cities.length ? (
+            data.cities.map((city) => (
+              <article
+                key={city.slug}
+                className={`mini-city-card ${city.trigger ? 'active' : ''} ${getSignalTone(city)}`}
+              >
                 <div className="mini-city-head">
                   <span className="city-name">
                     {city.cityZh}
-                    {city.trigger ? <b>Alert</b> : null}
+                    {city.trigger ? <b>机会</b> : null}
                   </span>
                   <strong className="sum-cell">{city.topOptionProbability}%</strong>
                 </div>
@@ -172,13 +129,15 @@ function App() {
                 </p>
 
                 <div className="mini-city-footer">
-                  <span>{city.marketDateLabel}</span>
+                  <span>{`${city.marketDateLabel} · 24h Vol ${formatVolume(city.volume24hr)}`}</span>
                   <a href={city.marketUrl} target="_blank" rel="noreferrer">
                     查看
                   </a>
                 </div>
               </article>
             ))
+          ) : (
+            <div className="empty-state">当前没有可展示的高温市场。</div>
           )}
         </div>
       </section>

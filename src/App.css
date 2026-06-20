@@ -180,6 +180,10 @@
   margin-top: 20px;
 }
 
+.merged-grid {
+  margin-top: 20px;
+}
+
 .mini-city-card {
   display: grid;
   gap: 12px;
@@ -194,6 +198,14 @@
     linear-gradient(180deg, rgba(255, 138, 91, 0.14), transparent),
     rgba(8, 14, 24, 0.82);
   border-color: rgba(255, 209, 102, 0.18);
+}
+
+.mini-city-card.critical {
+  border-color: rgba(255, 89, 68, 0.22);
+}
+
+.mini-city-card.strong {
+  border-color: rgba(255, 144, 71, 0.18);
 }
 
 .mini-city-head,
