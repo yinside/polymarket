@@ -12,6 +12,15 @@ function formatVolume(value: number) {
   }).format(value)
 }
 
+function formatGeneratedAt(value: string) {
+  return new Intl.DateTimeFormat('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    month: 'numeric',
+    day: 'numeric',
+  }).format(new Date(value))
+}
+
 function getSignalTone(city: CityMarket) {
   if (city.topOptionProbability < 30) {
     return 'critical'
@@ -30,8 +39,8 @@ function App() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [refreshTick, setRefreshTick] = useState(0)
-  const visibleOpportunityCities =
-    data?.filteredCities.filter((city) => city.topOptionProbability < 30) ?? []
+  const visibleOpportunityCities = data?.cities.filter((city) => city.topOptionProbability < 30) ?? []
+  const spotlightCities = visibleOpportunityCities.slice(0, 4)
 
   useEffect(() => {
     let cancelled = false
@@ -84,17 +93,34 @@ function App() {
       ) : null}
 
       <section className="opportunity-panel">
-        <div className="section-head">
-          <div>
-            <p className="panel-label">机会城市 + 最新检测</p>
-            <h2>按最高温度概率从低到高浏览</h2>
+        <div className="hero-band">
+          <div className="hero-copy">
+            <p className="panel-label">高温机会看板</p>
+            <h1>先看最分散的城市，再扫全市场。</h1>
+            <p className="section-note">
+              低于 30% 的城市会被放进机会区，下面的市场矩阵则继续按最高温度概率从低到高展开。
+            </p>
           </div>
-          <p className="section-note">低于 30% 的城市会优先高亮，方便你在同一屏里直接扫盘。</p>
+
+          <div className="hero-stats">
+            <article className="metric-card danger">
+              <span>机会城市</span>
+              <strong>{loading ? '--' : visibleOpportunityCities.length}</strong>
+            </article>
+            <article className="metric-card">
+              <span>活跃市场</span>
+              <strong>{loading ? '--' : data?.sourceCount ?? '--'}</strong>
+            </article>
+            <article className="metric-card">
+              <span>最近刷新</span>
+              <strong>{data ? formatGeneratedAt(data.generatedAt) : '--'}</strong>
+            </article>
+          </div>
         </div>
 
         <div className="status-bar">
-          <span>{loading ? '正在抓取 Polymarket 实时数据...' : `命中 ${visibleOpportunityCities.length} 个城市`}</span>
-          <span>{data ? `来源事件 ${data.sourceCount} 个` : '等待数据'}</span>
+          <span>{loading ? '正在抓取 Polymarket 实时数据...' : '按最高温度概率从低到高排序'}</span>
+          <span>{data ? `机会阈值 30% · 来源事件 ${data.sourceCount} 个` : '等待数据'}</span>
           <button
             type="button"
             className="refresh-button"
@@ -105,6 +131,53 @@ function App() {
           >
             {refreshing ? '刷新中...' : '立即刷新'}
           </button>
+        </div>
+
+        <div className="spotlight-strip">
+          <div className="strip-head">
+            <div>
+              <p className="panel-label">机会聚焦</p>
+              <h2>最值得先看的 4 个城市</h2>
+            </div>
+            <p className="section-note">这些城市当前最可能温度档的概率最低，市场分歧最大。</p>
+          </div>
+
+          <div className="spotlight-grid">
+            {loading ? (
+              <div className="empty-state">正在计算机会城市...</div>
+            ) : spotlightCities.length ? (
+              spotlightCities.map((city, index) => (
+                <article key={city.slug} className={`spotlight-card ${getSignalTone(city)}`}>
+                  <div className="spotlight-rank">#{index + 1}</div>
+                  <div className="spotlight-head">
+                    <div>
+                      <p>{city.cityZh}</p>
+                      <strong>{city.topOptionProbability}%</strong>
+                    </div>
+                    <a href={city.marketUrl} target="_blank" rel="noreferrer">
+                      查看市场
+                    </a>
+                  </div>
+
+                  <p className="spotlight-detail">{`最高温度档 ${city.topOption.label}`}</p>
+                  <div className="spotlight-meta">
+                    <span>{city.marketDateLabel}</span>
+                    <span>{`24h Vol ${formatVolume(city.volume24hr)}`}</span>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="empty-state">当前没有低于 30% 的机会城市。</div>
+            )}
+          </div>
+        </div>
+
+        <div className="strip-head market-head">
+          <div>
+            <p className="panel-label">市场矩阵</p>
+            <h2>全部城市快速扫盘</h2>
+          </div>
+          <p className="section-note">高亮卡片表示已落入机会区，其余城市按概率密度依次展开。</p>
         </div>
 
         <div className="mini-cards-grid merged-grid">
@@ -125,11 +198,16 @@ function App() {
                 </div>
 
                 <p className="mini-option-list">
-                  {`最高温度档 ${city.topOption.label} / 概率 ${city.topOption.probability}%`}
+                  {`最高温度档 ${city.topOption.label}`}
                 </p>
 
+                <div className="mini-chip-row">
+                  <span className="mini-chip">{`概率 ${city.topOption.probability}%`}</span>
+                  <span className="mini-chip">{city.marketDateLabel}</span>
+                </div>
+
                 <div className="mini-city-footer">
-                  <span>{`${city.marketDateLabel} · 24h Vol ${formatVolume(city.volume24hr)}`}</span>
+                  <span>{`24h Vol ${formatVolume(city.volume24hr)}`}</span>
                   <a href={city.marketUrl} target="_blank" rel="noreferrer">
                     查看
                   </a>
