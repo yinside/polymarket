@@ -40,6 +40,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [refreshTick, setRefreshTick] = useState(0)
   const visibleOpportunityCities = data?.cities.filter((city) => city.topOptionProbability < 30) ?? []
+  const matrixCities = data?.cities.filter((city) => city.topOptionProbability >= 30) ?? []
   const spotlightCities = visibleOpportunityCities.slice(0, 4)
 
   useEffect(() => {
@@ -175,16 +176,16 @@ function App() {
         <div className="strip-head market-head">
           <div>
             <p className="panel-label">市场矩阵</p>
-            <h2>全部城市快速扫盘</h2>
+            <h2>30% 以上城市快速扫盘</h2>
           </div>
-          <p className="section-note">高亮卡片表示已落入机会区，其余城市按概率密度依次展开。</p>
+          <p className="section-note">机会城市已经放在上面，这里只保留最高温度概率在 30% 以上的城市。</p>
         </div>
 
         <div className="mini-cards-grid merged-grid">
           {loading ? (
             <div className="empty-state">正在计算高温分布...</div>
-          ) : data?.cities.length ? (
-            data.cities.map((city) => (
+          ) : matrixCities.length ? (
+            matrixCities.map((city) => (
               <article
                 key={city.slug}
                 className={`mini-city-card ${city.trigger ? 'active' : ''} ${getSignalTone(city)}`}
@@ -215,7 +216,7 @@ function App() {
               </article>
             ))
           ) : (
-            <div className="empty-state">当前没有可展示的高温市场。</div>
+            <div className="empty-state">当前没有高于 30% 的市场矩阵城市。</div>
           )}
         </div>
       </section>
