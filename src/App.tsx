@@ -41,7 +41,6 @@ function App() {
   const [refreshTick, setRefreshTick] = useState(0)
   const visibleOpportunityCities = data?.cities.filter((city) => city.topOptionProbability < 30) ?? []
   const matrixCities = data?.cities.filter((city) => city.topOptionProbability >= 30) ?? []
-  const spotlightCities = visibleOpportunityCities.slice(0, 4)
 
   useEffect(() => {
     let cancelled = false
@@ -138,7 +137,7 @@ function App() {
           <div className="strip-head">
             <div>
               <p className="panel-label">机会聚焦</p>
-              <h2>最值得先看的 4 个城市</h2>
+              <h2>全部机会城市</h2>
             </div>
             <p className="section-note">这些城市当前最可能温度档的概率最低，市场分歧最大。</p>
           </div>
@@ -146,8 +145,8 @@ function App() {
           <div className="spotlight-grid">
             {loading ? (
               <div className="empty-state">正在计算机会城市...</div>
-            ) : spotlightCities.length ? (
-              spotlightCities.map((city, index) => (
+            ) : visibleOpportunityCities.length ? (
+              visibleOpportunityCities.map((city, index) => (
                 <article key={city.slug} className={`spotlight-card ${getSignalTone(city)}`}>
                   <div className="spotlight-rank">#{index + 1}</div>
                   <div className="spotlight-head">
